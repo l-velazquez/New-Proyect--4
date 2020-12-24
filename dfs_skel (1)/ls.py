@@ -26,14 +26,12 @@ def client(ip, port):
 	p.BuildListPacket()
 	sock.send(p.getEncodedPacket())
 	r = sock.recv(1024)
-	print(r)
+	if debug:
+		print(r)
 	file_arr = p.getFileArray()
 
 	for i in file_arr:
 		print(i[0],i[1], bytes)
-
-	msg = sock.recv(1024)
-	print(msg)
 
 if __name__ == "__main__":
 
