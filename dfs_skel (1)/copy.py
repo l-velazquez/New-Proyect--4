@@ -38,6 +38,7 @@ def copyToDFS(address, fname, path):
 	file = open(fname, "rb")
 
 
+
 	# Read file
 
 	# Fill code

@@ -13,6 +13,7 @@ import socket
 import socketserver
 import uuid
 import os.path
+debug= 1
 
 def usage():
 	print ("""Usage: python %s <server> <port> <data path> <metadata port,default=8000>""" % sys.argv[0] )
@@ -57,13 +58,18 @@ class DataNodeTCPHandler(socketserver.BaseRequestHandler):
 		"""
 
 		fname, fsize = p.getFileInfo()
+		if debug:
+			print("File name:",fname,"and file size",fsize)
 
 		self.request.send("OK")
 
 		# Generates an unique block id.
 		blockid = str(uuid.uuid1())
 
-		# Open the file for the new data block.  
+		# Open the file for the new data block.
+		file = open(fname+blockid,"rb")
+
+
 		# Receive the data block.
 		# Send the block id back
 
@@ -106,7 +112,7 @@ if __name__ == "__main__":
 		PORT = int(sys.argv[2])
 		DATA_PATH = sys.argv[3]
 
-		if len(sys.argv > 4):
+		if len(sys.argv) > 4:
 			META_PORT = int(sys.argv[4])
 
 		if not os.path.isdir(DATA_PATH):

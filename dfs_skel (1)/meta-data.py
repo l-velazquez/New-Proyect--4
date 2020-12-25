@@ -14,6 +14,7 @@ from Packet import *
 import sys
 import socketserver
 
+debug = 1
 def usage():
 	print ("""Usage: python %s <port, default=8000>""" % sys.argv[0] )
 	sys.exit(0)
@@ -50,11 +51,16 @@ class MetadataTCPHandler(socketserver.BaseRequestHandler):
 		   the file.
 		"""
 	       
-		# Fill code 
-	
+		# Fill code
+		info = p.getFileInfo()
+		#needs to see all the available data servers
 		if db.InsertFile(info[0], info[1]):
 			# Fill code
-			
+			dataNode = db.GetDataNode()
+			if debug:
+				print(dataNode)
+			#list all available data servers to store the file
+			p.BuildPutResponse(dataNode)
 		else:
 			self.request.sendall("DUP")
 	

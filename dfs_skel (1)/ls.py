@@ -24,7 +24,7 @@ def client(ip, port):
 
 	p = Packet
 	p.BuildListPacket()
-	sock.send(p.getEncodedPacket())
+	sock.sendall(p.getEncodedPacket())
 	r = sock.recv(1024)
 	if debug:
 		print(r)
