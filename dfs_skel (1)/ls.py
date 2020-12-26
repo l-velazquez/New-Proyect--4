@@ -22,12 +22,10 @@ def client(ip, port):
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.connect((ip,port))
 
-	p = Packet
+	p = Packet()
 	p.BuildListPacket()
-	sock.sendall(p.getEncodedPacket())
-	r = sock.recv(1024)
-	if debug:
-		print(r)
+	sock.sendall(bytes(p.getEncodedPacket(),"utf-8"))
+
 	file_arr = p.getFileArray()
 
 	for i in file_arr:

@@ -72,6 +72,8 @@ class MetadataTCPHandler(socketserver.BaseRequestHandler):
 		# Fill code to get the file name from packet and then 
 		# get the fsize and array of metadata server
 		#if the file size is a number not zero it will be true
+		fname,fsize = p.getFileInfo
+
 		if fsize:
 			# Fill code
 
@@ -84,6 +86,9 @@ class MetadataTCPHandler(socketserver.BaseRequestHandler):
 
 		# Fill code to get file name and blocks from
 		# packet
+		fileName = p.getFileName()
+		blocks = p.getDataBlocks()
+		db.AddBlockToInode(fileName, blocks)
 	
 		# Fill code to add blocks to file inode
 
@@ -121,15 +126,17 @@ class MetadataTCPHandler(socketserver.BaseRequestHandler):
 		elif cmd == "put":
 			# Client asking for servers to put data
 			# Fill code
+			self.handle_reg(db, p)
 		
 		elif cmd == "get":
 			# Client asking for servers to get data
 			# Fill code
+			self.handle_reg(db,p)
 
 		elif cmd == "dblks":
 			# Client sending data blocks for file
-			 # Fill code
-
+			# Fill code
+			self.handle_reg(db, p)
 
 		db.Close()
 

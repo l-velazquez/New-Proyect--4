@@ -41,13 +41,12 @@ class mds_db:
 		   Receives IP address and port 
 		   I.E. the information to connect to the data node
 		"""
-          
 		query = """insert into dnode (address, port) values ("%s", %s)""" % (address, port)
 		try:
 			self.c.execute(query)
 			return self.c.lastrowid 
 		except sqlite3.IntegrityError as e: 
-			#print type(e), dir(e), e
+			print (type(e), dir(e), e)
 			if e.message.split()[-1].strip() == "unique":
 				return 0
 			else:

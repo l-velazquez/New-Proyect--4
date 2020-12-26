@@ -1,8 +1,7 @@
 ###############################################################################
 #
 # Filename: data-node.py
-# Author: Jose R. Ortiz and ... (hopefully some students contribution)
-#
+# Author: Jose R. Ortiz and Luis Fernando Javier Velazquez Sosa
 # Description:
 # 	data node server for the DFS
 #
@@ -71,7 +70,33 @@ class DataNodeTCPHandler(socketserver.BaseRequestHandler):
 
 
 		# Receive the data block.
+		bsize = self.request.recv(1024)
+		if debug:
+			print(bsize)
+		self.request.send("OK")
+
+		# Convert the socket response in integers
+		block_size = int(bsize)
+		if debug:
+			print(bsize)
+		data = ""
+
+		# Send data in 1024 size parts
+		while (len(data) < block_size):
+			r = self.request.recv(1024)
+			data += r
+			self.request.send("OK")
+
+		# Save received data to file
+		file.write(data)
+		r = self.request.recv(1024)
+
 		# Send the block id back
+		print()
+		print("Block id:", blockid)
+
+		self.request.sendall(blockid)
+		self.request.close()
 
 		# Fill code
 
@@ -79,11 +104,23 @@ class DataNodeTCPHandler(socketserver.BaseRequestHandler):
 		
 		# Get the block id from the packet
 		blockid = p.getBlockID()
-
-
+		fname, fsize = p.getFileInfo()
 		# Read the file with the block id data
+		file = open(DATA_PATH+blockid,'rb')
+		data = file.read(1024)
+		size = os.path.getsize(fname)
+
+
 		# Send it back to the copy client.
-		
+		while (size > 0):
+			if debug:
+				print("bytes left to send are:", size)
+			self.request.send(data)
+			size = size - 1024
+			data = file.read(1024)
+		file.close()
+		self.request.close()
+
 		# Fill code
 
 	def handle(self):
