@@ -36,6 +36,12 @@ def copyToDFS(address, fname, path):
 
 	# Fill code
 	file = open(fname, "rb")
+	data = file.readlines()
+	file.close()
+	#using the file name finds the file size in bytes and return a int value
+	fileSize = os.path.getsize(fname)
+	if debug:
+		print(fileSize)
 
 
 
@@ -44,11 +50,23 @@ def copyToDFS(address, fname, path):
 	# Fill code
 
 	# Create a Put packet with the fname and the length of the data,
-	# and sends it to the metadata server 
-
+	# and sends it to the metadata server
+	p = Packet()
+	p.BuildPutPacket(fname,fileSize)
+	sock.sendall(p.getEncodedPacket())
 	# Fill code
 
 	# If no error or file exists
+	#recives the data
+	r = str(sock.recv(1024))
+	if debug:
+		print(r)
+	if r == "DUP":
+		print("Duplicated File")
+		return
+	else:
+		p.DecodePacket(r)
+
 	# Get the list of data nodes.
 	# Divide the file in blocks
 	# Send the blocks to the data servers
