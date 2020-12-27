@@ -36,10 +36,10 @@ def copyToDFS(address, fname, path):
 
 	# Fill code
 	# Read file
-	file = open(fname, "rb")
+	file = open(path, "rb")
 	data = file.read(1024)
 	#using the file name finds the file size in bytes and return a int value
-	fileSize = os.path.getsize(fname)
+	fileSize = os.path.getsize(path)
 	if debug:
 		print(data)
 		print(fileSize)
@@ -47,8 +47,8 @@ def copyToDFS(address, fname, path):
 	# Create a Put packet with the fname and the length of the data,
 	# and sends it to the metadata server
 	p = Packet()
-	p.BuildPutPacket(fname,fileSize)
-	sock.sendall(p.getEncodedPacket())
+	p.BuildPutPacket(path,fileSize)
+	sock.sendall(p.getEncodedPacket().encode())
 
 	# If no error or file exists
 	#recives the data
@@ -56,7 +56,7 @@ def copyToDFS(address, fname, path):
 	#we need to turn byte to str and the str.split"'"[1] to get the str
 	r = str(sock.recv(1024)).split("'")[1]
 	if debug:
-		print(r)
+		print("message received",r)
 	if r == "DUP":
 		print("Duplicated File")
 		return
@@ -121,7 +121,7 @@ def copyToDFS(address, fname, path):
 	# Create a packet object to register data blocks into meta data
 	p.BuildDataBlockPacket(fname, dNode)
 
-	sock.sendall(p.getEncodedPacket())
+	sock.sendall(p.getEncodedPacket().encode())
 	sock.close()
 
 
@@ -149,7 +149,7 @@ def copyFromDFS(address, fname, path):
 #***********************************************************************************************************************
 	p = Packet()
 	p.BuildGetPacket(fname)
-	sock.sendall(p.getEncodedPacket())
+	sock.sendall(p.getEncodedPacket().encode())
 
 
 	# If there is no error response, retreive the data blocks
@@ -171,7 +171,7 @@ def copyFromDFS(address, fname, path):
 
 		# Create a packet object to get data from data node
 		p.BuildGetDataBlockPacket(dnode[2])
-		sockdn.sendall(p.getEncodedPacket())
+		sockdn.sendall(p.getEncodedPacket().encode())
 
 		# Get the data size of the data that will be receive
 		dsize = sockdn.recv(1024)
@@ -185,7 +185,7 @@ def copyFromDFS(address, fname, path):
 		while(len(data) < dsize):
 			r = str(sockdn.recv(1024)).split("'")[1]
 			data = data + r
-			sockdn.sendall(bytes("OK"))
+			sockdn.sendall("OK".encode())
 
 		# Write data to file
 		f.write(data)
@@ -234,4 +234,6 @@ if __name__ == "__main__":
 
 		copyToDFS((ip, port), to_path, from_path)
 
-
+	else:
+		print("Sorry try again")
+		usage()

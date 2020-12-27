@@ -9,7 +9,7 @@
 import socket
 import sys
 from Packet import *
-debug = 1
+debug = 0
 
 def usage():
 	print ("""Usage: python %s <server>:<port, default=8000>""" % sys.argv[0] )
