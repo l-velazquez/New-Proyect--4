@@ -24,16 +24,18 @@ db.Connect()
 
 print ("Testing node addition")
 id1 = db.AddDataNode("136.145.54.10", 80) 
-id2 = db.AddDataNode("136.145.54.11", 80) 
-print()
+id2 = db.AddDataNode("136.145.54.11", 80)
+print(id1)
+print(id2)
 print("Testing if node was inserted")
 print("A tupple with node name and connection info must appear")
-print(db.CheckNode(id1))
+#fixed the id1 was giving problems and what CheckNode wanted was the ip and port not a int value
+print(db.CheckNode("136.145.54.10", 80))
 print()
 
-print ("Testing all Available data nodes")
-for address, port in  db.GetDataNodes():
-	print (address, port)
+print("Testing all Available data nodes")
+for address, port in db.GetDataNodes():
+	print(address, port)
 
 print()
 

@@ -41,7 +41,7 @@ class MetadataTCPHandler(socketserver.BaseRequestHandler):
 			p = Packet()
 			files = db.GetFiles()
 			p.BuildListResponse(files)
-			self.request.send(p.getEncodedPacket())
+			self.request.send(p.getEncodedPacket().encode())
 
 		except:
 			self.request.sendall("NAK")	
@@ -91,7 +91,7 @@ class MetadataTCPHandler(socketserver.BaseRequestHandler):
 		db.AddBlockToInode(fileName, blocks)
 	
 		# Fill code to add blocks to file inode
-
+		db.AddBlockToInode(fileName, blocks)
 		
 	def handle(self):
 
@@ -108,7 +108,6 @@ class MetadataTCPHandler(socketserver.BaseRequestHandler):
 		
 		# Decode the packet received
 		p.DecodePacket(msg)
-	
 
 		# Extract the command part of the received packet
 		cmd = p.getCommand()
@@ -121,22 +120,22 @@ class MetadataTCPHandler(socketserver.BaseRequestHandler):
 		elif cmd == "list":
 			# Client asking for a list of files
 			# Fill code
-			self.handle_reg(db)
+			self.handle_list(db)
 		
 		elif cmd == "put":
 			# Client asking for servers to put data
 			# Fill code
-			self.handle_reg(db, p)
+			self.handle_put(db, p)
 		
 		elif cmd == "get":
 			# Client asking for servers to get data
 			# Fill code
-			self.handle_reg(db,p)
+			self.handle_get(db,p)
 
 		elif cmd == "dblks":
 			# Client sending data blocks for file
 			# Fill code
-			self.handle_reg(db, p)
+			self.handle_blocks(db, p)
 
 		db.Close()
 

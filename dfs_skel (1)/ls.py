@@ -6,8 +6,6 @@
 # 	List client for the DFS
 #
 
-
-
 import socket
 import sys
 from Packet import *
@@ -24,7 +22,12 @@ def client(ip, port):
 
 	p = Packet()
 	p.BuildListPacket()
-	sock.sendall(bytes(p.getEncodedPacket(),"utf-8"))
+	sock.send(p.getEncodedPacket().encode())
+
+	msg = sock.recv(1024)
+	if debug:
+		print(msg, type(msg))
+	p.DecodePacket(msg)
 
 	file_arr = p.getFileArray()
 

@@ -27,19 +27,19 @@ class Packet:
     def getCommand(self):
         """Returns the command type of a packet"""
 
-        if self.packet.has_key("command"):
+        if "command" in self.packet:
             return self.packet["command"]
         return None
 
     def getAddr(self):
         """Returns the IP address of a server"""
-        if self.packet.has_key("addr"):
+        if "addr" in self.packet:
             return self.packet["addr"]
         return None
 
     def getPort(self):
         """Returns the port number of a server"""
-        if self.packet.has_key("port"):
+        if "port" in self.packet:
             return self.packet["port"]
         return None
 
@@ -63,7 +63,7 @@ class Packet:
     def getFileArray(self):
         """Builds a list response packet"""
 
-        if self.packet.has_key("files"):
+        if "files" in self.packet:
             return self.packet["files"]
 
     def BuildGetPacket(self, fname):
@@ -95,12 +95,12 @@ class Packet:
 
     def getFileInfo(self):
         """Returns the file info in a packet."""
-        if self.packet.has_key("fname") and self.packet.has_key("fsize"):
+        if "fname" in self.packet and "fsize" in self.packet:
             return self.packet["fname"], self.packet["fsize"]
 
     def getFileName(self):
         """Returns the file name in a packet."""
-        if self.packet.has_key("fname"):
+        if "fname" in self.packet:
             return self.packet["fname"]
 
     def BuildGetResponse(self, metalist, fsize):
@@ -115,13 +115,13 @@ class Packet:
 
     def getDataNodes(self):
         """Returns a list of data servers"""
-        if self.packet.has_key("servers"):
+        if "servers" in self.packet:
             return self.packet["servers"]
         return None
 
     def getDataBlocks(self):
         """Returns a list of data blocks"""
-        if self.packet.has_key("blocks"):
+        if "blocks" in self.packet:
             return self.packet["blocks"]
         return None
 
