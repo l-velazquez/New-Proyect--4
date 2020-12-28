@@ -14,7 +14,7 @@ from Packet import *
 import sys
 import socketserver
 
-debug = 1
+debug = 0
 def usage():
 	print ("""Usage: python %s <port, default=8000>""" % sys.argv[0] )
 	sys.exit(0)
@@ -76,7 +76,7 @@ class MetadataTCPHandler(socketserver.BaseRequestHandler):
 
 		if fsize:
 			# Fill code
-			p.BuildPutResponse(chunk_info,fsize)
+			p.BuildGetResponse(chunk_info,fsize)
 			self.request.sendall(p.getEncodedPacket().encode())
 		else:
 			self.request.sendall("NFOUND".encode())

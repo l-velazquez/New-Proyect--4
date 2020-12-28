@@ -13,7 +13,7 @@ import socketserver
 import uuid
 import os.path
 
-debug = 1
+debug = 0
 
 
 def usage():
@@ -104,7 +104,7 @@ class DataNodeTCPHandler(socketserver.BaseRequestHandler):
 
         # Get the block id from the packet
         blockid = p.getBlockID()
-        fname, fsize = p.getFileInfo()
+        fname = p.getFileName()
         # Read the file with the block id data
         file = open(DATA_PATH + blockid, 'rb')
         data = file.read(1024)
@@ -114,7 +114,7 @@ class DataNodeTCPHandler(socketserver.BaseRequestHandler):
         while (size > 0):
             if debug:
                 print("bytes left to send are:", size)
-            self.request.send(data)
+            self.request.sendall(data)
             size = size - 1024
             data = file.read(1024)
         file.close()

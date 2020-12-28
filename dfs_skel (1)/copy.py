@@ -1,7 +1,7 @@
 ###############################################################################
 #
 # Filename: mds_db.py
-# Author: Jose R. Ortiz and ... (hopefully some students contribution)
+# Author: Jose R. Ortiz and Luis Fernando Javier Velazquez Sosa
 #
 # Description:
 # 	Copy client for the DFS
@@ -13,10 +13,9 @@ import sys
 import os.path
 
 from Packet import *
-form mds_db import *
+from mds_db import *
 #Esto es para cuando vaya a debuggear pueda luego apagar los print y el codigo quede intacto :)
 debug = 0
-
 
 
 def usage():
@@ -92,10 +91,10 @@ def copyToDFS(address, fname, path):
 		r = sockdn.recv(1024)
 
 		# Take the data block that will be send to data node
-		bdata = blockList.pop(0)
+		block_data = blockList.pop(0)
 
 		if r == "OK":
-			block_data_size = len(bdata)
+			block_data_size = len(block_data)
 
 			sockdn.sendall(bytes(block_data_size))
 			r = sockdn.recv(1024)
@@ -112,7 +111,7 @@ def copyToDFS(address, fname, path):
 			sockdn.sendall("OK".encode())
 			r = sockdn.recv(1024)
 			if debug:
-				print("Message recieved:",r)
+				print("Message received:",r)
 			i.append(r)
 
 		sockdn.close()
@@ -126,8 +125,9 @@ def copyToDFS(address, fname, path):
 
 	sock.sendall(p.getEncodedPacket().encode())
 	sock.close()
-#***********************************************************************************************************************
 	file.close()
+
+
 
 def copyFromDFS(address, fname, path):
 	""" Contact the metadata server to ask for the file blocks of
@@ -138,46 +138,41 @@ def copyFromDFS(address, fname, path):
 	# Contact the metadata server to ask for information of fname
 	sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 	sock.connect(address)
+	if debug:
+		print("Address:", address)
+		print("File name:", fname)
+		print("Path:",path)
+
 	# Fill code
-#***********************************************************************************************************************
 	p = Packet()
 	p.BuildGetPacket(fname)
+
 	sock.send(p.getEncodedPacket().encode())
 	# If there is no error response, retreive the data blocks
-	dataNodeList = p.getDataNodes()
+
 	# Create file to store data from blocks
+	#Aqui no se por que no recibe nada?
+	r = sock.recv(1024)
+	if debug:
+		print("message received",r)
+	p.DecodePacket(r)
+
+	dataNodeList = p.getDataNodes()
 	print(dataNodeList)
+	if debug:
+		print("opening",path)
 
-	f = open(fname, 'wb')
+	#opens a new file which was specified in the perameters
+	# write bytes
+	f = open(path, 'wb')
 	# Get data blocks from data servers
-	for dataNode in dataNodeList:
-		# Contact the data node
-		DNsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		DNsock.connect((dataNode[0], dataNode[1]))
 
-		# Create a packet object to get data from data node
-		p.BuildGetDataBlockPacket(dataNode[2])
-		DNsock.sendall(p.getEncodedPacket().encode())
 
-		# Get the data size of the data that will be receive
-		dataSize =int( DNsock.recv(1024))
+	# Fill code
 
-		DNsock.sendall(bytes("OK"))
+	# Save the file
 
-		# Get data in 1024 size parts
-		data = ""
-		size = len(data)
-		while(size < dataSize):
-			r = str(DNsock.recv(1024)).split("'")[1]
-			data = data + r
-			size += 1024
-			DNsock.sendall("OK".encode())
-
-		# Write data to file
-		f.write(data)
-		DNsock.close()
-	f.close()
-#***********************************************************************************************************************
+	# Fill code
 
 if __name__ == "__main__":
 #	client("localhost", 8000)

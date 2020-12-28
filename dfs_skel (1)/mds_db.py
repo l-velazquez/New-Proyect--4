@@ -1,7 +1,7 @@
 ###############################################################################
 #
 # Filename: mds_db.py
-# Author: Jose R. Ortiz and ... (hopefully some students contribution)
+# Author: Jose R. Ortiz and Luis Fernando Javier Velazquez Sosa
 #
 # Description:
 # 	MySQL support library for the DFS project. Database info for the 
