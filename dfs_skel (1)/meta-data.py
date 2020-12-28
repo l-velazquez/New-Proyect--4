@@ -68,15 +68,15 @@ class MetadataTCPHandler(socketserver.BaseRequestHandler):
 		"""Check if file is in database and return list of
 			server nodes that contain the file.
 		"""
-
 		# Fill code to get the file name from packet and then 
 		# get the fsize and array of metadata server
 		#if the file size is a number not zero it will be true
-		fname,fsize = p.getFileInfo
+		fname = p.getFileName()
+		fsize, chunk_info = db.GetFileInode(fname)
 
 		if fsize:
 			# Fill code
-
+			p.BuildPutResponse(chunk_info,fsize)
 			self.request.sendall(p.getEncodedPacket().encode())
 		else:
 			self.request.sendall("NFOUND".encode())
@@ -113,7 +113,7 @@ class MetadataTCPHandler(socketserver.BaseRequestHandler):
 		cmd = p.getCommand()
 
 		# Invoke the proper action 
-		if   cmd == "reg":
+		if cmd == "reg":
 			# Registration client
 			self.handle_reg(db, p)
 

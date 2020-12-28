@@ -32,7 +32,7 @@ def client(ip, port):
 	file_arr = p.getFileArray()
 
 	for i in file_arr:
-		print(i[0],i[1], bytes)
+		print(i[0],i[1],"bytes")
 
 if __name__ == "__main__":
 

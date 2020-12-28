@@ -13,8 +13,9 @@ import sys
 import os.path
 
 from Packet import *
+form mds_db import *
 #Esto es para cuando vaya a debuggear pueda luego apagar los print y el codigo quede intacto :)
-debug = 1
+debug = 0
 
 
 
@@ -70,7 +71,7 @@ def copyToDFS(address, fname, path):
 		dNodeSize = len(dNode)
 		blockSize = int(fileSize/dNodeSize)
 		blockList = []
-#***********************************************************************************************************************
+
 		for i in range(0, fileSize, blockSize):
 			if (i / blockSize) + 1 == dNodeSize:
 				blockList.append(data[i:])
@@ -79,7 +80,7 @@ def copyToDFS(address, fname, path):
 			else:
 				blockList.append(data[i:i + blockSize])
 	sock.close()
-#***********************************************************************************************************************
+
 	for i in dNode:
 		# Connecto to the data node
 		sockdn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -94,27 +95,29 @@ def copyToDFS(address, fname, path):
 		bdata = blockList.pop(0)
 
 		if r == "OK":
-			size = len(bdata)
+			block_data_size = len(bdata)
 
-			sockdn.sendall(bytes(size))
+			sockdn.sendall(bytes(block_data_size))
 			r = sockdn.recv(1024)
 
-			# Send the data block into 1024 size parts
-			while len(data) > 0:
-				chunk = data[0:1024]
+			# Send the data block into 1024 bytes parts`
+			size = len(data)
+			while size > 0:
+				sockdn.sendall(data[0:1024])
 				data = data[1024:]
-
-				sockdn.sendall(chunk)
+				size = size - 1024
 				r = sockdn.recv(1024)
 
 			# Adding the chunk id to the data nodes list
-			sockdn.sendall(bytes("OK"))
+			sockdn.sendall("OK".encode())
 			r = sockdn.recv(1024)
+			if debug:
+				print("Message recieved:",r)
 			i.append(r)
 
 		sockdn.close()
 
-	# Connect to the meta data
+	# Connect to the meta data server
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.connect(address)
 
@@ -123,17 +126,7 @@ def copyToDFS(address, fname, path):
 
 	sock.sendall(p.getEncodedPacket().encode())
 	sock.close()
-
-
 #***********************************************************************************************************************
-# Send the blocks to the data servers
-
-	# Fill code	
-
-	# Notify the metadata server where the blocks are saved.
-
-	# Fill code
-
 	file.close()
 
 def copyFromDFS(address, fname, path):
@@ -149,58 +142,42 @@ def copyFromDFS(address, fname, path):
 #***********************************************************************************************************************
 	p = Packet()
 	p.BuildGetPacket(fname)
-	sock.sendall(p.getEncodedPacket().encode())
-
-
+	sock.send(p.getEncodedPacket().encode())
 	# If there is no error response, retreive the data blocks
-	r = sock.recv(1024)
-	p.DecodePacket(r)
-	dnList = p.getDataNodes()
-
-
+	dataNodeList = p.getDataNodes()
 	# Create file to store data from blocks
-	f = open(path, 'wb')
+	print(dataNodeList)
 
-
+	f = open(fname, 'wb')
 	# Get data blocks from data servers
-	for dnode in dnList:
+	for dataNode in dataNodeList:
 		# Contact the data node
-		sockdn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		sockdn.connect((dnode[0], dnode[1]))
-
+		DNsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		DNsock.connect((dataNode[0], dataNode[1]))
 
 		# Create a packet object to get data from data node
-		p.BuildGetDataBlockPacket(dnode[2])
-		sockdn.sendall(p.getEncodedPacket().encode())
+		p.BuildGetDataBlockPacket(dataNode[2])
+		DNsock.sendall(p.getEncodedPacket().encode())
 
 		# Get the data size of the data that will be receive
-		dsize = sockdn.recv(1024)
-		dsize = int(dsize)
+		dataSize =int( DNsock.recv(1024))
 
-		sockdn.sendall(bytes("OK"))
-
+		DNsock.sendall(bytes("OK"))
 
 		# Get data in 1024 size parts
 		data = ""
-		while(len(data) < dsize):
-			r = str(sockdn.recv(1024)).split("'")[1]
+		size = len(data)
+		while(size < dataSize):
+			r = str(DNsock.recv(1024)).split("'")[1]
 			data = data + r
-			sockdn.sendall("OK".encode())
+			size += 1024
+			DNsock.sendall("OK".encode())
 
 		# Write data to file
 		f.write(data)
-		sockdn.close()
-
-
+		DNsock.close()
 	f.close()
 #***********************************************************************************************************************
-	# If there is no error response Retreive the data blocks
-
-	# Fill code
-
-    # Save the file
-	
-	# Fill code
 
 if __name__ == "__main__":
 #	client("localhost", 8000)
